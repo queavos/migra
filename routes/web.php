@@ -295,6 +295,7 @@ $seme_id=1;
 $facucar_id=1000;
 $fcaradm_id=1000;
 $tariff_id=1000;
+$carsub_id=1000;
 $units=[];
 $faculties=[];
 $careers=[];
@@ -303,6 +304,7 @@ $subjects=[];
 $facu_careers=[];
 $facucar_adm=[];
 $tariffs=[];
+$carsubjects=[];
 
 // bucle para agregar id auto numerico.
 foreach ($datos as $dato) {
@@ -374,6 +376,10 @@ foreach ($instituciones as $dato) { // comienza instituciones a units
                 }
            $subjets_sql= "INSERT INTO   public.subjects(  subj_id,  subj_code,  subj_name,  subj_durationhs,  subj_weeklyhs,  sems_id,  subj_mattertype, subj_carord) VALUES ( ".$matCur->mate_id.", ".isnulltxt($matCur->codigo_materia).', '.isnulltxt($matCur->Descripcion).', '.$matCur->duracion_horas.', '.$matCur->duracion_horas.', '.$seme_id.", '0',".$matCur->subj_carord.");";
            array_push($subjects,$subjets_sql);
+          $carsub_id++;
+           $carsubs_sql="INSERT INTO public.careers_subjets(carsubj_id, facucar_id,materia_id, person_id,carsubj_year, carsubj_shift,carsubj_startdate, carsubj_enddate,carsubj_require, carsubj_evalprocess,carsubj_evalfinals, carsubj_code) VALUES (".$carsub_id.",".$facucar_id.",".isnullnum($matCur->mate_id).",".isnullnum($matCur->cod_profesor).",".isnullnum($l_year).",".isnulltxt('').",".   isnulldate($matCur->fecha_inicio).", ".isnulldate($matCur->fecha_fin).",    0, 0,".isnulltxt($matCur->codigo_materia).");";
+           array_push($carsubjects,$carsubs_sql);
+           
          }  //TERMINA materias a subjects
         // echo count($units);
 
@@ -462,16 +468,18 @@ foreach ($facucar_adm as $u) {
   //echo "<p>".$u."</p>" ;
 }
 foreach ($tariffs as $u) {
-  echo "<p>".$u."</p>" ;
+  //echo "<p>".$u."</p>" ;
 }
 
 
 foreach ($semesters as $u) {
 //  echo "<p>".$u."</p>" ;
 }
-
-
 foreach ($subjects as $u) {
 //  echo "<p>".$u."</p>" ;
 }
+foreach ($carsubjects as $u) {
+ echo "<p>".$u."</p>" ;
+}
+
 })->name('insti_lista'); // INSTITUCION/LISTA
