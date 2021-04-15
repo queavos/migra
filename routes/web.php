@@ -1,5 +1,5 @@
 <?php
-
+header('Content-type: text/plain; charset=utf-8');
 use Illuminate\Support\Facades\Route;
 use App\Models\sistemaAlumno;
 use App\Models\Professor;
@@ -30,13 +30,17 @@ use Illuminate\Support\Facades\DB;
 /*      */
 function isnulltxt($val)
 {
+  //setlocale(LC_ALL, 'es_ES');
+  $val=mb_convert_case($val, MB_CASE_TITLE, "UTF-8");
   if (is_null($val))
   {
     return "'--'";
   }
   else
   {
-    return sanit_text($val);
+    //echo "entro---"."<br>";
+   return   sanit_text($val);
+
   }
 }
 function isnullnum($val)
@@ -91,8 +95,8 @@ Route::get('students/lista', function () {
     // code...
     $sql="INSERT INTO students  ( person_id,  homecity_id,   birthplace_id,   country_id,   person_fname,   person_lastname,   person_birthdate,   person_gender,   person_idnumber,   person_address,   person_bloodtype,   person_photo,   person_business_name,   person_ruc,stu_status,   stu_gradyear,   stu_obs,   stu_allergies,   stu_instsupport,school_id,  hstitle_id,stu_status2,  stu_credential,   stu_creddate) VALUES (".
       $item->alumno.","."0,   0,   0, ".
-      sanit_text($item->nombre).",".
-      sanit_text($item->apellido).",".
+      isnulltxt($item->nombre).",".
+      isnulltxt($item->apellido).",".
       isnulldate($item->fecha_nac).",".
       isnulltxt($item->sexo).",".
       isnulltxt($item->cedula).",".
@@ -124,7 +128,7 @@ Route::get('students/telefonos', function () {
     if ($cnt->telefono!="")
     {
       //  echo "<li>".$cnt->alumno." - ".$cnt->telefono."</li>";
-      $sql='INSERT INTO public.contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (2,'.$cnt->alumno.",'teléfono',".isnulltxt($cnt->telefono).');';
+      $sql='INSERT INTO contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (2,'.$cnt->alumno.",'teléfono',".isnulltxt($cnt->telefono).');';
       echo  $sql."\n" ;
     }
   }
@@ -136,7 +140,7 @@ Route::get('students/celular', function () {
   foreach ($contactos as $cnt) {
     if ($cnt->celular!="")
     {
-      $sql='INSERT INTO public.contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (2,'.$cnt->alumno.",'Celular',".isnulltxt($cnt->celular).');';
+      $sql='INSERT INTO contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (2,'.$cnt->alumno.",'Celular',".isnulltxt($cnt->celular).');';
       echo  $sql."\n" ;
     }
   }
@@ -151,7 +155,7 @@ Route::get('students/email', function () {
   foreach ($contactos as $cnt) {
     if ($cnt->email!="")
     {
-      $sql='INSERT INTO public.contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (2,'.$cnt->alumno.",'Email',".isnulltxt($cnt->email).');';
+      $sql='INSERT INTO contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (2,'.$cnt->alumno.",'Email',".isnulltxt($cnt->email).');';
       echo  $sql."\n" ;
     }
   }
@@ -163,7 +167,7 @@ Route::get('students/urgencias', function () {
   foreach ($contactos as $cnt) {
     if (($cnt->urg_llamar_a!="") && ($cnt->urg_telefono!="")  )
     {
-      $sql='INSERT INTO public.contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (3,'.$cnt->alumno.','.isnulltxt($cnt->urg_llamar_a).",".isnulltxt($cnt->urg_telefono).');';
+      $sql='INSERT INTO contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (3,'.$cnt->alumno.','.isnulltxt($cnt->urg_llamar_a).",".isnulltxt($cnt->urg_telefono).');';
       echo  $sql."\n" ;
     }
 
@@ -175,7 +179,7 @@ Route::get('students/laboral', function () {
   foreach ($contactos as $cnt) {
     if (($cnt->trabajo!="") && ($cnt->telef_trabajo!="")  )
     {
-      $sql='INSERT INTO public.contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (4,'.$cnt->alumno.','.isnulltxt($cnt->trabajo).",".isnulltxt($cnt->telef_trabajo).');';
+      $sql='INSERT INTO contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (4,'.$cnt->alumno.','.isnulltxt($cnt->trabajo).",".isnulltxt($cnt->telef_trabajo).');';
       echo  $sql."\n" ;
     }
   }
@@ -183,6 +187,7 @@ Route::get('students/laboral', function () {
 
 Route::get('profes/lista', function () {
   //echo "<pre>";
+  //echo date_format(Now(), 'Ymd-His');
   $datos= App\Models\Professor::all();
   foreach ($datos as $dato) {
     $import=sistemaAlumno::where('cedula',"=",isnullnum($dato->ci))->first();
@@ -205,26 +210,7 @@ Route::get('profes/lista', function () {
       $profe_oldid=$dato->cod_profesor;
       //echo "<li>";
       //print_r($import);
-      $sql=' INSERT INTO public.professors  (
-        person_id,
-        homecity_id,
-        birthplace_id,
-        country_id,
-        person_fname,
-        person_lastname,
-        person_birthdate,
-        person_gender,
-        person_idnumber,
-        person_address,
-        person_bloodtype,
-        person_photo,
-        person_business_name,
-        person_ruc,
-        profe_year_start,
-        profe_observation,
-        profe_status,
-        profe_oldid
-      ) VALUES ('."      $person_id,      0,      0,      0,"
+      $sql=' INSERT INTO professors  (person_id,homecity_id,birthplace_id,country_idperson_fname,person_lastname,person_birthdate,person_gender,person_idnumber,person_address,person_bloodtype,person_photo,person_business_name,person_ruc,profe_year_start,profe_observation,profe_status,profe_oldid  ) VALUES ('."      $person_id,      0,      0,      0,"
         .      isnulltxt($person_fname).","
         .      isnulltxt($person_lastname).","
         .      isnulldate($person_birthdate).","
@@ -261,7 +247,7 @@ Route::get('profes/lista', function () {
         $profe_status="";
         $profe_oldid=0;
 
-        $sql=' INSERT INTO public.professors  ( person_id, homecity_id,birthplace_id,country_id,person_fname,person_lastname,person_birthdate,person_gender,person_idnumber,person_address,person_bloodtype,person_photo,person_business_name,person_ruc,profe_year_start,profe_observation,profe_status,profe_oldid) VALUES ( '
+        $sql=' INSERT INTO professors  ( person_id, homecity_id,birthplace_id,country_id,person_fname,person_lastname,person_birthdate,person_gender,person_idnumber,person_address,person_bloodtype,person_photo,person_business_name,person_ruc,profe_year_start,profe_observation,profe_status,profe_oldid) VALUES ( '
           .$profe_oldid.", 0,     0,      0, ".      isnulltxt($person_fname).", ".      isnulltxt($person_lastname).", ".      isnulldate($person_birthdate).", '".      $person_gender."',".   isnulltxt($person_idnumber).", ".      isnulltxt($person_address).", ".      isnulltxt($person_bloodtype).", ".      isnulltxt($person_photo).", ".      isnulltxt($person_business_name).",".      isnulltxt($person_ruc).",".      isnullnum($profe_year_start).",".      isnulltxt($profe_observation)." , ".        isnulltxt($profe_status)." , ".      $profe_oldid.');';
         }
         echo   $sql."\n";
@@ -316,7 +302,7 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
   }
   $instituciones=$datos;
   foreach ($instituciones as $dato) { // comienza instituciones a units
-    $sql_insti='INSERT INTO  public.units(  unit_id, unit_name,unit_code,unit_logo,unit_oldid)VALUES ('.$dato->newid.','.isnulltxt($dato->descripcion).','.isnulltxt($dato->cod_institucion).','.isnulltxt("blank.jpg").','.isnulltxt($dato->cod_institucion).');';
+    $sql_insti='INSERT INTO  units(  unit_id, unit_name,unit_code,unit_logo,unit_oldid)VALUES ('.$dato->newid.','.isnulltxt($dato->descripcion).','.isnulltxt($dato->cod_institucion).','.isnulltxt("blank.jpg").','.isnulltxt($dato->cod_institucion).');';
     array_push($units,$sql_insti);
     $facus=$dato->facultades;
 
@@ -326,7 +312,7 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
         $facuid++;
         $facu->facu_id=$facuid;
         $facu->unit_id=$dato->newid;
-        $sql_facu='INSERT INTO   public.faculties (facu_id,facu_name,facu_code,facu_unit_id,facu_logo) VALUES ('.$facu->facu_id.','.isnulltxt($facu->descripcion).','.isnulltxt($facu->abreviacion).','.$facu->unit_id.','.isnulltxt("blank.jpg").');';
+        $sql_facu='INSERT INTO   faculties (facu_id,facu_name,facu_code,facu_unit_id,facu_logo) VALUES ('.$facu->facu_id.','.isnulltxt($facu->descripcion).','.isnulltxt($facu->abreviacion).','.$facu->unit_id.','.isnulltxt("blank.jpg").');';
         array_push($faculties,$sql_facu);
         $carres=$facu->carreras;
         if ( count($carres)>0)
@@ -335,7 +321,7 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
             $carreid++;
             $carre->carre_id=$carreid;
             $carre->facu_id=$facu->facu_id;
-            $carre_sql='INSERT INTO  public.careers(  career_id,  career_name,  career_code,  career_semsqity,  career_logo, career_pid) VALUES ('.$carre->carre_id.','.isnulltxt($carre->descripcion).','.isnulltxt($carre->cod_carrera).','.'9'.',  '.isnulltxt("blank.jpg").',0);';
+            $carre_sql='INSERT INTO  careers(  career_id,  career_name,  career_code,  career_semsqity,  career_logo, career_pid) VALUES ('.$carre->carre_id.','.isnulltxt($carre->descripcion).','.isnulltxt($carre->cod_carrera).','.'9'.',  '.isnulltxt("blank.jpg").',0);';
             array_push($careers,$carre_sql);
             $cursos=$carre->cursos->sortBy('anio')->sortBy('cod_curso');
             $l_year=0;
@@ -348,13 +334,13 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                 $facucar_id++;
                 $fcaradm_id++;
                 $tariff_id++;
-                $carre_sql='INSERT INTO  public.careers(  career_id,  career_name,  career_code,  career_semsqity,  career_logo, career_pid) VALUES ('.$carre_chid.','.isnulltxt($carre->descripcion.' - '.$l_year).','.isnulltxt($carre->cod_carrera).','.'9'.',  '.isnulltxt("blank.jpg").', '.$carre->carre_id.');';
+                $carre_sql='INSERT INTO  careers(  career_id,  career_name,  career_code,  career_semsqity,  career_logo, career_pid) VALUES ('.$carre_chid.','.isnulltxt($carre->descripcion.' - '.$l_year).','.isnulltxt($carre->cod_carrera).','.'9'.',  '.isnulltxt("blank.jpg").', '.$carre->carre_id.');';
                 array_push($careers,$carre_sql);
-                $facucarre_sql='INSERT INTO   public.facu_careers(  facu_career_id,  fcar_name,  career_id,  faculty_id,  tcareer_id) VALUES ('.$facucar_id.', '.isnulltxt($carre->descripcion.' - '.$l_year).', '.$carre_chid.','.$facu->facu_id.', 0 );';
+                $facucarre_sql='INSERT INTO   facu_careers(  facu_career_id,  fcar_name,  career_id,  faculty_id,  tcareer_id) VALUES ('.$facucar_id.', '.isnulltxt($carre->descripcion.' - '.$l_year).', '.$carre_chid.','.$facu->facu_id.', 0 );';
                 array_push($facu_careers,$facucarre_sql);
-                $fcaradm_sql="INSERT INTO public.facucar_adm (  fcaradm_id,  facu_career_id,  fcaradm_fee1sem,  fcaradm_fee2sem,  fcaradm_dueday,fcaradm_year) VALUES (".$fcaradm_id.", ".$facucar_id.", ".$curso->cantidad_cuotas.",  ".$curso->cantidad_cuotas.",".'10'.",".isnulltxt($l_year).");";
+                $fcaradm_sql="INSERT INTO facucar_adm (  fcaradm_id,  facu_career_id,  fcaradm_fee1sem,  fcaradm_fee2sem,  fcaradm_dueday,fcaradm_year) VALUES (".$fcaradm_id.", ".$facucar_id.", ".$curso->cantidad_cuotas.",  ".$curso->cantidad_cuotas.",".'10'.",".isnulltxt($l_year).");";
                 array_push($facucar_adm,$fcaradm_sql);
-                $tariff_sql="INSERT INTO   public.tariffs (  tariff_id,  fcaradm_id,  tariff_payamount,  tariff_caryear,  tariff_regamount,  tariff_obs)VALUES (  ".$tariff_id.",  ".$fcaradm_id.",  ".$curso->monto_cuota.",  ".isnulltxt($l_year).",  ".$curso->matricula.","."'exportado'".");";
+                $tariff_sql="INSERT INTO   tariffs (  tariff_id,  fcaradm_id,  tariff_payamount,  tariff_caryear,  tariff_regamount,  tariff_obs)VALUES (  ".$tariff_id.",  ".$fcaradm_id.",  ".$curso->monto_cuota.",  ".isnulltxt($l_year).",  ".$curso->matricula.","."'exportado'".");";
                 array_push($tariffs,$tariff_sql);
 
               }
@@ -377,10 +363,10 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                   else
                   { $matCur->subj_carord=0; }
                 }
-                $subjets_sql= "INSERT INTO   public.subjects(  subj_id,  subj_code,  subj_name,  subj_durationhs,  subj_weeklyhs,  sems_id,  subj_mattertype, subj_carord) VALUES ( ".$matCur->mate_id.", ".isnulltxt($matCur->codigo_materia).', '.isnulltxt($matCur->Descripcion).', '.$matCur->duracion_horas.', '.$matCur->duracion_horas.', '.$seme_id.", '0',".$matCur->subj_carord.");";
+                $subjets_sql= "INSERT INTO   subjects(  subj_id,  subj_code,  subj_name,  subj_durationhs,  subj_weeklyhs,  sems_id,  subj_mattertype, subj_carord) VALUES ( ".$matCur->mate_id.", ".isnulltxt($matCur->codigo_materia).', '.isnulltxt($matCur->Descripcion).', '.$matCur->duracion_horas.', '.$matCur->duracion_horas.', '.$seme_id.", '0',".$matCur->subj_carord.");";
                 array_push($subjects,$subjets_sql);
                 $carsub_id++;
-                $carsubs_sql="INSERT INTO public.careers_subjets (carsubj_id, facucar_id,materia_id, person_id,carsubj_year, carsubj_shift,carsubj_startdate, carsubj_enddate,carsubj_require, carsubj_evalprocess,carsubj_evalfinals, carsubj_code) VALUES (".$carsub_id.",".$facucar_id.",".isnullnum($matCur->mate_id).",".isnullnum($matCur->cod_profesor).",".isnullnum($l_year).",".isnulltxt('').",".isnulldate($matCur->fecha_inicio).", ".isnulldate($matCur->fecha_fin).", 70, 0, 0,".isnulltxt($matCur->codigo_materia).");";
+                $carsubs_sql="INSERT INTO careers_subjets (carsubj_id, facucar_id,materia_id, person_id,carsubj_year, carsubj_shift,carsubj_startdate, carsubj_enddate,carsubj_require, carsubj_evalprocess,carsubj_evalfinals, carsubj_code) VALUES (".$carsub_id.",".$facucar_id.",".isnullnum($matCur->mate_id).",".isnullnum($matCur->cod_profesor).",".isnullnum($l_year).",".isnulltxt('').",".isnulldate($matCur->fecha_inicio).", ".isnulldate($matCur->fecha_fin).", 70, 0, 0,".isnulltxt($matCur->codigo_materia).");";
                 array_push($carsubjects,$carsubs_sql);
                 // recupera inscriptos
                 $inscriptos=$curso->inscripciones;
@@ -394,11 +380,16 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                     }
                     $subenrroll_sql="INSERT INTO   carsub_enrolled (enroll_id, carsubj_id, carsub_en_status  ) VALUES (".isnullnum($inscript->inscripcion).", ".$carsub_id.", ".isnulltxt($inscript->estado).");";
                     array_push($carsub_enrolled,$subenrroll_sql);
-
-
-
                   // code...
                 }
+                //recuperar examenes
+
+                // insertar evaluaciones
+
+
+                // reculeprar evaluaciones
+
+                //insertar evaluaciones
 
 
 
@@ -475,7 +466,22 @@ echo "</ol>";
 echo "</li>";
 
 }*/
+$folder=date_format(Now(), 'Ymd-His');
+mkdir($folder, 0777, true);
+chdir ($folder);
+file_put_contents ('10-unidades.sql',implode(PHP_EOL,$units));
+file_put_contents ('11-facultades.sql',implode(PHP_EOL,$faculties));
+file_put_contents ('12-carreras.sql',implode(PHP_EOL,$careers));
+file_put_contents ('12-facu_carreras.sql',implode(PHP_EOL,$facu_careers));
+file_put_contents ('13-carreras_adm.sql',implode(PHP_EOL,$facucar_adm));
+file_put_contents ('15-tarifas.sql',implode(PHP_EOL,$tariffs));
+file_put_contents ('16-semestres.sql',implode(PHP_EOL,$semesters));
+file_put_contents ('17-materias.sql',implode(PHP_EOL,$subjects));
+file_put_contents ('18-carras_materias.sql',implode(PHP_EOL,$carsubjects));
+file_put_contents ('19-inscripciones.sql',implode(PHP_EOL,$enrolleds));
+file_put_contents ('20-incrip_materia.sql',implode(PHP_EOL,$carsub_enrolled));
 
+/*
 foreach ($units as $u) {
   //echo "<p>".$u."</p>" ;
 }
@@ -514,5 +520,5 @@ foreach ($carsub_enrolled as $u) {
   echo "<p>".$u."</p>" ;
 }
 //echo "<ol>";
-
+*/
 })->name('insti_lista'); // INSTITUCION/LISTA

@@ -47,8 +47,23 @@ carsub_en_id  <-- serial
 enroll_id     <-- inscripcion
 carsubj_id  <---
 carsub_en_status <-- "true"
-INSERT INTO   carsub_enrolled (enroll_id, carsubj_id, carsub_en_status  )  VALUES (  
+INSERT INTO   carsub_enrolled (enroll_id, carsubj_id, carsub_en_status  )  VALUES (
   enroll_id,
   carsubj_id,
   carsub_en_status
  );
+
+ --------------
+Anotaciones
+ ---------------
+ "sistema_Examenes" (
+   codigo_examen NUMERIC(8,0), ->> nros sin sentido
+   codigo_materia VARCHAR(10), ->> codigo_materia
+   "Descripcion" VARCHAR(60), ->> descripcion
+   "Derecho_examen" NUMERIC(10,0), ->> costo derecho de examen
+   clasificador VARCHAR(2), -> tipo de evaluacion
+   fecha_examen TIMESTAMP WITHOUT TIME ZONE,
+   total_puntos NUMERIC(3,0), ->total de puntos
+   usuario_modif_web VARCHAR(32),
+   fecha_modif_web TIMESTAMP WITHOUT TIME ZONE
+ )

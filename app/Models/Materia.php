@@ -24,5 +24,9 @@ class Materia extends Model
       {
         return $this->hasMany('App\Models\Examen');
       }
+    function calificaciones()
+        {
+          return $this->hasMany('App\Models\Calificacion');
+        }
 
 }
