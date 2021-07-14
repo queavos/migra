@@ -1,4 +1,5 @@
 <?php
+ini_set('max_execution_time', 3000);
 header('Content-type: text/plain; charset=utf-8');
 use Illuminate\Support\Facades\Route;
 use App\Models\sistemaAlumno;
@@ -295,6 +296,8 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
   $ins_old_id=0;
   $enrolleds=[];
   $carsub_enrolled=[];
+  $subjet_evaluation=[];
+  $seval=1;
   // bucle para agregar id auto numerico.
   foreach ($datos as $dato) {
     $i++;
@@ -383,11 +386,25 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                   // code...
                 }
                 //recuperar examenes
+                $exams=$matCur->examenes;
+                foreach ($exams as $exam)
+                {
+                  $seval++;
+                  if ( ($exam->clasificador >= 1) and ($exam->clasificador <= 3) ) { $examen=1; } else { $examen=0; }
+                  if ( ($exam->clasificador >= 1) and ($exam->clasificador <= 9) ) {
+                  $subEval_sql='INSERT INTO subject_evaluation (subeval_id,subeval_name, subeval_total,  subeval_date, subeval_exam, subeval_spprice, evaltype_id, carsubj_id, updated_at) VALUES('.$seval.','.isnulltxt($exam->Descripcion).', '.isnullnum($exam->total_puntos).', '.isnulldate($exam->fecha_examen).', '.$examen.', '.isnullnum($exam->Derecho_examen).', '.isnullnum($exam->clasificador).', '.$carsub_id.', '.isnulldate($exam->fecha_modif_web).');';
+                  array_push($subjet_evaluation,$subEval_sql);
+                  // reculeprar evaluaciones
+                  
 
+
+
+
+                  }
+                }
                 // insertar evaluaciones
 
 
-                // reculeprar evaluaciones
 
                 //insertar evaluaciones
 
@@ -466,6 +483,8 @@ echo "</ol>";
 echo "</li>";
 
 }*/
+
+/*
 $folder=date_format(Now(), 'Ymd-His');
 mkdir($folder, 0777, true);
 chdir ($folder);
@@ -480,6 +499,8 @@ file_put_contents ('17-materias.sql',implode(PHP_EOL,$subjects));
 file_put_contents ('18-carras_materias.sql',implode(PHP_EOL,$carsubjects));
 file_put_contents ('19-inscripciones.sql',implode(PHP_EOL,$enrolleds));
 file_put_contents ('20-incrip_materia.sql',implode(PHP_EOL,$carsub_enrolled));
+file_put_contents ('21-subjet_evaluation.sql',implode(PHP_EOL,$subjet_evaluation));
+*/
 
 /*
 foreach ($units as $u) {
@@ -520,5 +541,6 @@ foreach ($carsub_enrolled as $u) {
   echo "<p>".$u."</p>" ;
 }
 //echo "<ol>";
-*/
+
+
 })->name('insti_lista'); // INSTITUCION/LISTA

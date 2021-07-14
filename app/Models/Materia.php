@@ -22,7 +22,7 @@ class Materia extends Model
       }
     function examenes()
       {
-        return $this->hasMany('App\Models\Examen');
+        return $this->hasMany('App\Models\Examen','codigo_materia');
       }
     function calificaciones()
         {

@@ -67,3 +67,20 @@ Anotaciones
    usuario_modif_web VARCHAR(32),
    fecha_modif_web TIMESTAMP WITHOUT TIME ZONE
  )
+
+ "sistema_Calificaciones" (
+   inscripcion NUMERIC(8,0), //  enroll_id
+   codigo_materia VARCHAR(10), // codigo_materia
+   codigo_examen NUMERIC(8,0), // codigo_examen
+   fecha TIMESTAMP WITHOUT TIME ZONE,
+   calificacion NUMERIC(5,2), cakuf
+   acta VARCHAR(15),
+   fecha_alta TIMESTAMP WITHOUT TIME ZONE,
+   usuario_alta VARCHAR(32),
+   fecha_modif TIMESTAMP WITHOUT TIME ZONE,
+   usuario_modif VARCHAR(32),
+   calificacion_final NUMERIC(1,0),
+   fecha_modif_web TIMESTAMP WITHOUT TIME ZONE,
+   usuario_modif_web VARCHAR(32)
+ )
+ WITH (oids = false);
