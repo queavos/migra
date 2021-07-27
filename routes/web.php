@@ -1,5 +1,6 @@
 <?php
-ini_set('max_execution_time', 3000);
+ini_set('max_execution_time', -1);
+ini_set('memory_limit', -1);
 header('Content-type: text/plain; charset=utf-8');
 use Illuminate\Support\Facades\Route;
 use App\Models\sistemaAlumno;
@@ -10,6 +11,8 @@ use App\Models\Carrera;
 use App\Models\Curso;
 use App\Models\Materia;
 use App\Models\Inscripcion;
+use App\Models\Cuotas;
+use App\Models\Calificacion;
 use Illuminate\Support\Facades\DB;
 /*
 |--------------------------------------------------------------------------
@@ -297,6 +300,8 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
   $enrolleds=[];
   $carsub_enrolled=[];
   $subjet_evaluation=[];
+  $student_account=[];
+  $eval_students=[];
   $seval=1;
   // bucle para agregar id auto numerico.
   foreach ($datos as $dato) {
@@ -383,7 +388,34 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                     }
                     $subenrroll_sql="INSERT INTO   carsub_enrolled (enroll_id, carsubj_id, carsub_en_status  ) VALUES (".isnullnum($inscript->inscripcion).", ".$carsub_id.", ".isnulltxt($inscript->estado).");";
                     array_push($carsub_enrolled,$subenrroll_sql);
-                  // code...
+                    //echo $inscript->alumno.",".$inscript->inscripcion."\n";
+                  //   $calificALL = Calificacion::where("inscripcion" , $inscript->inscripcion)->where("codigo_materia" ,$matCur->codigo_materia)->get();
+                  // //  echo $inscript->inscripcion.PHP_EOL;
+                  //   foreach ( $calificALL as $calif)
+                  //   {
+                  //     echo $calif->fecha." - ".$calif->carlificacion." - ".$calif->fecha." - ".PHP_EOL;
+                  //   }
+
+                    // recuperar cuotas
+                    $insCuotas=$inscript->cuotas;
+                     foreach ($insCuotas as $cuota)
+                       {
+
+                         if ($cuota->tipo_movimiento=='C')
+                          {
+                            $operId=0;
+                          } else { $operId=3; }
+                          if ( $cuota->id_movimiento==0  ){ $cuoType="Matricula"; } else { $cuoType="Cuota "; }
+                          if ($cuota->estado=='P')
+                           {
+                             $cuoStatus=1;
+                           } else { $cuoStatus=0; }
+
+                          $studentAcc_sql="INSERT INTO student_account (person_id, enroll_id,oper_id, staccount_quot_number,staccount_quot_amount, staccount_description,staccount_start_period, staccount_end_period,staccount_expiration, staccount_status,staccount_amount_paid, staccount_type,surcharge)
+                          VALUES(".isnullnum($inscript->alumno).", ".isnullnum($inscript->inscripcion).",".$operId.", ".$cuota->id_movimiento.",".$cuota->importe.", ".isnulltxt($cuoType." ".$cuota->id_movimiento).",".isnulldate($matCur->fecha_inicio).", ".isnulldate($matCur->fecha_fin).",".isnulldate($cuota->fec_vence).", ".$cuoStatus.",".isnullnum($cuota->pagado).", ".isnulltxt($cuoType).",".isnullnum($cuota->pagado_mora).");";
+                          array_push($student_account,$studentAcc_sql);
+                          //echo $studentAcc_sql.PHP_EOL;
+                       }
                 }
                 //recuperar examenes
                 $exams=$matCur->examenes;
@@ -395,11 +427,18 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                   $subEval_sql='INSERT INTO subject_evaluation (subeval_id,subeval_name, subeval_total,  subeval_date, subeval_exam, subeval_spprice, evaltype_id, carsubj_id, updated_at) VALUES('.$seval.','.isnulltxt($exam->Descripcion).', '.isnullnum($exam->total_puntos).', '.isnulldate($exam->fecha_examen).', '.$examen.', '.isnullnum($exam->Derecho_examen).', '.isnullnum($exam->clasificador).', '.$carsub_id.', '.isnulldate($exam->fecha_modif_web).');';
                   array_push($subjet_evaluation,$subEval_sql);
                   // reculeprar evaluaciones
-                  
+                   $calificALL = Calificacion::where("codigo_materia" ,$exam->codigo_materia)->get();
+                   foreach ($calificALL as $calif)
+                   {
+                     $isAprov=0;
+                     if ($calif->codigo_examen<4 ){
+                       $isFinal=1;
+                       if ($calif->calificacion>2) { $isAprov=1; }
+                     } else { $isFinal=0;}
 
-
-
-
+                     $calif_sql="INSERT INTO eval_students(carsub_en_id, subeval_id, evstu_earned, evstu_final, evstu_aprov, evstu_enabled, evstu_paid) VALUES (".$calif->inscripcion.", ".$seval.", ".$calif->calificacion.", ".$isFinal.", ".$isAprov.", 0 , 0 );";
+                     array_push($eval_students,$calif_sql);
+                   }
                   }
                 }
                 // insertar evaluaciones
@@ -484,7 +523,7 @@ echo "</li>";
 
 }*/
 
-/*
+
 $folder=date_format(Now(), 'Ymd-His');
 mkdir($folder, 0777, true);
 chdir ($folder);
@@ -500,7 +539,9 @@ file_put_contents ('18-carras_materias.sql',implode(PHP_EOL,$carsubjects));
 file_put_contents ('19-inscripciones.sql',implode(PHP_EOL,$enrolleds));
 file_put_contents ('20-incrip_materia.sql',implode(PHP_EOL,$carsub_enrolled));
 file_put_contents ('21-subjet_evaluation.sql',implode(PHP_EOL,$subjet_evaluation));
-*/
+file_put_contents ('22-student_account.sql',implode(PHP_EOL,$student_account));
+file_put_contents ('23-eval_students.sql',implode(PHP_EOL,$eval_students));
+
 
 /*
 foreach ($units as $u) {
@@ -541,6 +582,6 @@ foreach ($carsub_enrolled as $u) {
   echo "<p>".$u."</p>" ;
 }
 //echo "<ol>";
-
+*/
 
 })->name('insti_lista'); // INSTITUCION/LISTA

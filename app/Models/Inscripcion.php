@@ -17,4 +17,8 @@ class Inscripcion extends Model
       {
         return $this->belongsTo('App\Models\Curso','cod_curso');
       }
+  function cuotas ()
+        {
+          return $this->hasMany('App\Models\Cuotas', 'Inscripcion');
+        }
 }
