@@ -94,6 +94,7 @@ Route::get('students/lista', function () {
   //credencial_fecha as stu_creddate    FROM public.sistema_alumno";
   //$lista=DB::select($sql);
   $result=[];
+
   foreach ($lista as $item) {
     //print_r($item);
     // code...
@@ -190,6 +191,7 @@ Route::get('students/laboral', function () {
 })->name('students_laboral');
 
 Route::get('profes/lista', function () {
+
   //echo "<pre>";
   //echo date_format(Now(), 'Ymd-His');
   $datos= App\Models\Professor::all();
@@ -276,7 +278,7 @@ Route::get('profes/lista', function () {
 /*  */
 Route::get('institucion/lista', function () { // INSTITUCION/LISTA
   //echo "<ol type='I'>";
-  $datos= App\Models\Institucion::all();
+
   //print_r($datos);
   $i=100;
   $facuid=100;
@@ -303,20 +305,160 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
   $student_account=[];
   $eval_students=[];
   $seval=1;
+  $students=[];
+  $contact_persons=[];
+  $professors=[];
+/// estudiantes
+// leyendo profesores
+echo "leyendo estudiantes".PHP_EOL;
+$lista=App\Models\sistemaAlumno::all();
+$result=[];
+foreach ($lista as $item) {
+  $sql="INSERT INTO students  ( person_id,  homecity_id,   birthplace_id,   country_id,   person_fname,   person_lastname,   person_birthdate,   person_gender,   person_idnumber,   person_address,   person_bloodtype,   person_photo,   person_business_name,   person_ruc,stu_status,   stu_gradyear,   stu_obs,   stu_allergies,   stu_instsupport,school_id,  hstitle_id,stu_status2,  stu_credential,   stu_creddate) VALUES (".
+    $item->alumno.","."0,   0,   0, ".
+    isnulltxt($item->nombre).",".
+    isnulltxt($item->apellido).",".
+    isnulldate($item->fecha_nac).",".
+    isnulltxt($item->sexo).",".
+    isnulltxt($item->cedula).",".
+    isnulltxt($item->direccion).",".
+    isnulltxt($item->grupo_sangre).",".
+    "'-','-','-',".
+    isnulltxt($item->observacion).",".
+    isnullnum($item->anio_egreso).",".
+    isnulltxt($item->observacion).",".
+    isnulltxt($item->alergias).",".
+    isnulltxt($item->institucion_apoyo).",".
+    "0,0,'-',".
+    isnullnum($item->stu_credential).",".
+    isnulldate($item->stu_creddate).");";
+    array_push($students,$sql);
+
+    //echo $sql."\n";
+    if ($item->telefono!="")
+    {
+      //  echo "<li>".$cnt->alumno." - ".$cnt->telefono."</li>";
+      $sql='INSERT INTO contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (2,'.$item->alumno.",'teléfono',".isnulltxt($item->telefono).');';
+      //echo  $sql."\n" ;
+      array_push($contact_persons,$sql);
+    }
+      if ($item->celular!="")
+      {
+        $sql='INSERT INTO contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (2,'.$item->alumno.",'Celular',".isnulltxt($item->celular).');';
+        array_push($contact_persons,$sql);
+      }
+      if (($item->urg_llamar_a!="") && ($item->urg_telefono!="")  )
+      {
+        $sql='INSERT INTO contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (3,'.$item->alumno.','.isnulltxt($item->urg_llamar_a).",".isnulltxt($item->urg_telefono).');';
+        array_push($contact_persons,$sql);
+      }
+
+        if ($item->email!="")
+        {
+          $sql='INSERT INTO contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (2,'.$item->alumno.",'Email',".isnulltxt($item->email).');';
+          array_push($contact_persons,$sql);
+        }
+        if (($item->trabajo!="") && ($item->telef_trabajo!="")  )
+        {
+          $sql='INSERT INTO contact_persons (  cnttype_id,  person_id,  cntper_description,  cntper_data ) VALUES (4,'.$item->alumno.','.isnulltxt($item->trabajo).",".isnulltxt($item->telef_trabajo).');';
+          array_push($contact_persons,$sql);
+        }
+  }
+  // leyendo profesores
+  echo "fin alumno y contactos".PHP_EOL;
+  echo "cantidad de alumnos  cantidad = ".count($students).PHP_EOL;
+    echo "cantidad contactos = ".count($contact_persons).PHP_EOL;
+///
+// leyendo profesores
+echo "leyendo profesores".PHP_EOL;
+$datos= App\Models\Professor::all();
+foreach ($datos as $dato) {
+  $import=sistemaAlumno::where('cedula',"=",isnullnum($dato->ci))->first();
+  if (($import)) {
+    //print_r($import);
+    $person_id=$import->alumno;
+    $person_fname=$import->nombre;
+    $person_lastname=$import->apellido;
+    $person_birthdate=$import->fecha_nac;
+    $person_gender=$import->sexo;
+    $person_idnumber=$import->cedula;
+    $person_address=$import->direccion;
+    $person_bloodtype=$import->grupo_sangre;
+    $person_photo="-";
+    $person_business_name=$import->apellido.", ".$import->nombre."'";
+    $person_ruc=$import->cedula;
+    $profe_year_start=$dato->anio_ejercicio;
+    $profe_observation=$dato->email.", \n".$dato->celular;
+    $profe_status="";
+    $profe_oldid=$dato->cod_profesor;
+    //echo "<li>";
+    //print_r($import);
+    $sql=' INSERT INTO professors  (person_id,homecity_id,birthplace_id,country_idperson_fname,person_lastname,person_birthdate,person_gender,person_idnumber,person_address,person_bloodtype,person_photo,person_business_name,person_ruc,profe_year_start,profe_observation,profe_status,profe_oldid  ) VALUES ('."      $person_id,      0,      0,      0,"
+      .      isnulltxt($person_fname).","
+      .      isnulltxt($person_lastname).","
+      .      isnulldate($person_birthdate).","
+      .      isnulltxt($person_gender).", "
+      .      isnulltxt($person_idnumber).","
+      .      isnulltxt($person_address).","
+      .    isnulltxt($person_bloodtype).","
+      .isnulltxt($person_photo).","
+      .      isnulltxt($person_business_name).","
+      .      isnulltxt($person_ruc).","
+      .      isnullnum($profe_year_start).","
+      .      isnulltxt($profe_observation).","
+      .      isnulltxt($profe_status).","
+      .      $profe_oldid.');';
+    } else {
+      $l_name=strtok($dato->nombre, ',');
+      $f_name=strtok(',');
+      $person_lastname=$l_name;
+      $person_fname=$f_name;
+      $person_birthdate=$dato->fecha_nac;
+      $person_gender='';
+      $person_idnumber=$dato->ci;
+      $person_address="-";
+      $person_bloodtype="-";
+      $person_photo="-";
+      $person_business_name=$l_name.", ".$f_name;
+      $person_ruc=$dato->ci;
+      $profe_year_start=$dato->anio_ejercicio;
+      $profe_observation=$dato->email.", \n".$dato->celular;
+      $profe_status="";
+      $profe_oldid=0;
+
+      $sql=' INSERT INTO professors  ( person_id, homecity_id,birthplace_id,country_id,person_fname,person_lastname,person_birthdate,person_gender,person_idnumber,person_address,person_bloodtype,person_photo,person_business_name,person_ruc,profe_year_start,profe_observation,profe_status,profe_oldid) VALUES ( '
+        .$profe_oldid.", 0,     0,      0, ".      isnulltxt($person_fname).", ".      isnulltxt($person_lastname).", ".      isnulldate($person_birthdate).", '".      $person_gender."',".   isnulltxt($person_idnumber).", ".      isnulltxt($person_address).", ".      isnulltxt($person_bloodtype).", ".      isnulltxt($person_photo).", ".      isnulltxt($person_business_name).",".      isnulltxt($person_ruc).",".      isnullnum($profe_year_start).",".      isnulltxt($profe_observation)." , ".        isnulltxt($profe_status)." , ".      $profe_oldid.');';
+      }
+    //  echo   $sql."\n";
+      //$professors
+      array_push($professors,$sql);
+      //echo "</li>";
+    }
+    // leyendo profesores
+    echo "fin lectura profesores".PHP_EOL;
+    echo "profesores cantidad = ".count($professors).PHP_EOL;
+
+
   // bucle para agregar id auto numerico.
   foreach ($datos as $dato) {
     $i++;
     $dato->newid=$i;
   }
+  echo "leyendo instituciones".PHP_EOL;
+  $datos= App\Models\Institucion::all();
   $instituciones=$datos;
-  foreach ($instituciones as $dato) { // comienza instituciones a units
+
+  foreach ($instituciones as $dato)
+  { // comienza instituciones a units
     $sql_insti='INSERT INTO  units(  unit_id, unit_name,unit_code,unit_logo,unit_oldid)VALUES ('.$dato->newid.','.isnulltxt($dato->descripcion).','.isnulltxt($dato->cod_institucion).','.isnulltxt("blank.jpg").','.isnulltxt($dato->cod_institucion).');';
     array_push($units,$sql_insti);
+    echo "leyendo facultades de ".isnulltxt($dato->descripcion).PHP_EOL;
     $facus=$dato->facultades;
 
     if ( count($facus)>0)
     {
-      foreach ($facus as $facu) { // camienza facultades a faculties
+      foreach ($facus as $facu)
+      { // camienza facultades a faculties
         $facuid++;
         $facu->facu_id=$facuid;
         $facu->unit_id=$dato->newid;
@@ -325,7 +467,9 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
         $carres=$facu->carreras;
         if ( count($carres)>0)
         {
-          foreach ($carres as $carre) { // comienza CARRERA a careers
+          echo "leyendo carreras de ".isnulltxt($facu->descripcion).PHP_EOL;
+          foreach ($carres as $carre)
+          { // comienza CARRERA a careers
             $carreid++;
             $carre->carre_id=$carreid;
             $carre->facu_id=$facu->facu_id;
@@ -333,6 +477,7 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
             array_push($careers,$carre_sql);
             $cursos=$carre->cursos->sortBy('anio')->sortBy('cod_curso');
             $l_year=0;
+            echo "leyendo cursos de ".isnulltxt($carre->descripcion).PHP_EOL;
             foreach ($cursos as $curso) { // comienza curso a carrera
               $intervalo=date_diff(date_create($curso->final),date_create($curso->inicio),true);
               if ($l_year!=$curso->anio)
@@ -352,12 +497,13 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                 array_push($tariffs,$tariff_sql);
 
               }
+              //echo "fin leyendo cursos de ".isnulltxt($carre->descripcion).PHP_EOL;
               $seme_sql='INSERT INTO semesters(sems_id, sems_name,  career_id,  sems_year) VALUES (  '.$seme_id++.','.isnulltxt($curso->descripcion) .','.$carre_chid.','.$l_year.');';
               array_push($semesters,$seme_sql);
-
               $curMats=$curso->materias;
-
-              foreach ($curMats as $matCur) { //comienza materias a subjects
+              echo "leyendo materias de ".isnulltxt($curso->descripcion).PHP_EOL;
+              foreach ($curMats as $matCur)
+              { //comienza materias a subjects
                 $matCur->mate_id=$mate_id++;
                 $aux=0;
                 if (($dato->cod_institucion)=='UNAE')
@@ -379,7 +525,9 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                 // recupera inscriptos
                 $inscriptos=$curso->inscripciones;
                 // inserta inscriptos del curso
-                foreach ($inscriptos as $inscript) {
+                echo "leyendo inscriptos de ".isnulltxt($curso->descripcion).PHP_EOL;
+                foreach ($inscriptos as $inscript)
+                {
                     if ($ins_old_id != $inscript->alumno)
                     {
                     $ins_old_id= $inscript->alumno;
@@ -397,6 +545,7 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                   //   }
 
                     // recuperar cuotas
+                  //  echo "leyendo cuotas de   ".isnulltxt($inscript->inscripcion).PHP_EOL;
                     $insCuotas=$inscript->cuotas;
                      foreach ($insCuotas as $cuota)
                        {
@@ -416,8 +565,11 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                           array_push($student_account,$studentAcc_sql);
                           //echo $studentAcc_sql.PHP_EOL;
                        }
+                  //     echo "fin leyendo cuotas de  ".isnulltxt($inscript->inscripcion).PHP_EOL;
                 }
+                echo "fin leyendo inscriptos de ".isnulltxt($curso->descripcion).PHP_EOL;
                 //recuperar examenes
+                echo "leyendo examenes de  ".isnulltxt($matCur->Descripcion).PHP_EOL;
                 $exams=$matCur->examenes;
                 foreach ($exams as $exam)
                 {
@@ -427,6 +579,7 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                   $subEval_sql='INSERT INTO subject_evaluation (subeval_id,subeval_name, subeval_total,  subeval_date, subeval_exam, subeval_spprice, evaltype_id, carsubj_id, updated_at) VALUES('.$seval.','.isnulltxt($exam->Descripcion).', '.isnullnum($exam->total_puntos).', '.isnulldate($exam->fecha_examen).', '.$examen.', '.isnullnum($exam->Derecho_examen).', '.isnullnum($exam->clasificador).', '.$carsub_id.', '.isnulldate($exam->fecha_modif_web).');';
                   array_push($subjet_evaluation,$subEval_sql);
                   // reculeprar evaluaciones
+                  echo "leyendo calif de  ".isnulltxt($exam->Descripcion).PHP_EOL;
                    $calificALL = Calificacion::where("codigo_materia" ,$exam->codigo_materia)->get();
                    foreach ($calificALL as $calif)
                    {
@@ -435,112 +588,97 @@ Route::get('institucion/lista', function () { // INSTITUCION/LISTA
                        $isFinal=1;
                        if ($calif->calificacion>2) { $isAprov=1; }
                      } else { $isFinal=0;}
-
                      $calif_sql="INSERT INTO eval_students(carsub_en_id, subeval_id, evstu_earned, evstu_final, evstu_aprov, evstu_enabled, evstu_paid) VALUES (".$calif->inscripcion.", ".$seval.", ".$calif->calificacion.", ".$isFinal.", ".$isAprov.", 0 , 0 );";
                      array_push($eval_students,$calif_sql);
                    }
+                   echo "fin leyendo calif de  ".isnulltxt($exam->Descripcion).PHP_EOL;
                   }
                 }
-                // insertar evaluaciones
-
-
-
-                //insertar evaluaciones
-
-
-
-
-
+                echo "fin leyendo examenes de  ".isnulltxt($matCur->Descripcion).PHP_EOL;
               }  //TERMINA materias a subjects
-              // echo count($units);
-
-              /*  */
-              /* segunda vuelta de materias.
-              echo "<ol>";
-              foreach ($curMats as $matCur) {
-              //$matCur->$mate_id++;
-              echo "<li>";
-              echo $matCur->mate_id." - ".$matCur->Descripcion." - ".$matCur->duracion_horas;
-              echo "</li>";
-            }
-            echo "</ol>";
-            */
-
-
+              echo "fin leyendo materias de ".isnulltxt($curso->descripcion).PHP_EOL;
           } // TERMINA  curso a carrera
-          //echo "</ul>";
+          echo "leyendo cursos de ".isnulltxt($carre->descripcion).PHP_EOL;
         } // TERMINA CARRERA a careers
-
       }
-
     }// camienza facultades a faculties
-
+    echo "fin leyendo facultades de ".isnulltxt($dato->descripcion).PHP_EOL;
   }
+  echo "fin leyendo instituciones".PHP_EOL;
 } // camienza inituciones  a  units
-
-
-
-/*
-echo "<li>";
-echo $dato->cod_institucion." - ".$dato->descripcion;
-$facus=$dato->facultades;
-if ( count($facus)>0)
-{
-echo "<ol type='A'>";
-foreach ($facus as $facu) {
-echo "<li>";
-echo $facu->abreviacion." - ".$facu->descripcion;
-$carres=$facu->carreras;
-if ( count($carres)>0)
-{
-echo "<ol type='1'>";
-foreach ($carres as $carre) {
-echo "<li>";
-echo $carre->cod_carrera." - ".$carre->descripcion;
-$cursos=$carre->cursos;
-if ( count($cursos)>0)
-{
-echo "<ol type='a'>";
-foreach ($cursos as $curso) {
-echo "<li>";
-echo $curso->anio." - ".$curso->descripcion;
-
-echo "</li>";
-}
-echo "</ol>";
-}
-echo "</li>";
-
-}
-echo "</ol>";
-}
-echo "</li>";
-}
-echo "</ol>";
-}
-
-echo "</li>";
-
-}*/
-
-
 $folder=date_format(Now(), 'Ymd-His');
 mkdir($folder, 0777, true);
 chdir ($folder);
+echo "carpeta creada ".$folder.PHP_EOL;
+echo "se escribira 07-professors.sql con " .count($professors)." lineas".PHP_EOL;
+file_put_contents ('07-professors.sql',implode(PHP_EOL,$professors));
+echo "se escribio 07-professors.sql".PHP_EOL;
+unset($professors);
+echo "se escribira 08-students.sql con " .count($students)." lineas".PHP_EOL;
+file_put_contents ('08-students.sql',implode(PHP_EOL,$students));
+echo "se escribio 08-students.sql".PHP_EOL;
+unset($students);
+echo "se escribira 09-contact_persons.sql con " .count($contact_persons)." lineas".PHP_EOL;
+file_put_contents ('09-contact_persons.sql',implode(PHP_EOL,$contact_persons));
+echo "se escribio 09-contact_persons.sql".PHP_EOL;
+unset($contact_persons);
+echo "se escribira 10-unidades.sql con " .count($units)." lineas".PHP_EOL;
 file_put_contents ('10-unidades.sql',implode(PHP_EOL,$units));
+echo "se escribio 10-unidades.sql".PHP_EOL;
+unset($units);
+echo "se escribira 11-facultades.sql con " .count($faculties)." lineas".PHP_EOL;
 file_put_contents ('11-facultades.sql',implode(PHP_EOL,$faculties));
+echo "se escribio 11-facultades.sql".PHP_EOL;
+unset($faculties);
+echo "se escribira 12-carreras.sql con " .count($careers)." lineas".PHP_EOL;
 file_put_contents ('12-carreras.sql',implode(PHP_EOL,$careers));
-file_put_contents ('12-facu_carreras.sql',implode(PHP_EOL,$facu_careers));
-file_put_contents ('13-carreras_adm.sql',implode(PHP_EOL,$facucar_adm));
+echo "se escribio 12-carreras.sql".PHP_EOL;
+unset($careers);
+echo "se escribira 13-facu_carreras.sql con " .count($facu_careers)." lineas".PHP_EOL;
+file_put_contents ('13-facu_carreras.sql',implode(PHP_EOL,$facu_careers));
+echo "se escribio 13-facu_carreras.sql".PHP_EOL;
+unset($facu_careers);
+echo "se escribira 14-carreras_adm.sql con " .count($facucar_adm)." lineas".PHP_EOL;
+file_put_contents ('14-carreras_adm.sql',implode(PHP_EOL,$facucar_adm));
+echo "se escribio 14-carreras_adm.sql".PHP_EOL;
+unset($facucar_adm);
+echo "se escribira 15-tarifas.sql con " .count($tariffs)." lineas".PHP_EOL;
 file_put_contents ('15-tarifas.sql',implode(PHP_EOL,$tariffs));
+echo "se escribio 15-tarifas.sql".PHP_EOL;
+unset($tariffs);
+echo "se escribira 16-semestres.sql con " .count($semesters)." lineas".PHP_EOL;
 file_put_contents ('16-semestres.sql',implode(PHP_EOL,$semesters));
+echo "se escribio 16-semestres.sql".PHP_EOL;
+unset($semesters);
+echo "se escribira 17-materias.sql con " .count($subjects)." lineas".PHP_EOL;
 file_put_contents ('17-materias.sql',implode(PHP_EOL,$subjects));
+echo "se escribio 17-materias.sql".PHP_EOL;
+unset($subjects);
+echo "se escribira 18-carras_materias.sql con " .count($carsubjects)." lineas".PHP_EOL;
 file_put_contents ('18-carras_materias.sql',implode(PHP_EOL,$carsubjects));
+echo "se escribio 18-carras_materias.sql".PHP_EOL;
+unset($carsubjects);
+echo "se escribira 19-inscripciones.sql con " .count($enrolleds)." lineas".PHP_EOL;
 file_put_contents ('19-inscripciones.sql',implode(PHP_EOL,$enrolleds));
+echo "se escribio 19-inscripciones.sql".PHP_EOL;
+unset($enrolleds);
+echo "se escribira 20-incrip_materia.sql con " .count($carsub_enrolled)." lineas".PHP_EOL;
 file_put_contents ('20-incrip_materia.sql',implode(PHP_EOL,$carsub_enrolled));
+echo "se escribio 20-incrip_materia.sql".PHP_EOL;
+unset($carsub_enrolled);
+echo "se escribira 21-subjet_evaluation.sql con " .count($subjet_evaluation)." lineas".PHP_EOL;
 file_put_contents ('21-subjet_evaluation.sql',implode(PHP_EOL,$subjet_evaluation));
+echo "se escribio 21-subjet_evaluation.sql".PHP_EOL;
+unset($subjet_evaluation);
+echo "se escribira 22-student_account.sql con " .count($student_account)." lineas".PHP_EOL;
 file_put_contents ('22-student_account.sql',implode(PHP_EOL,$student_account));
+echo "se escribio 22-student_account.sql".PHP_EOL;
+unset($student_account);
+echo "se escribira 23-eval_students.sql con " .count($eval_students)." lineas".PHP_EOL;
 file_put_contents ('23-eval_students.sql',implode(PHP_EOL,$eval_students));
+echo "se escribio 23-eval_students.sql".PHP_EOL;
+unset($eval_students);
+echo "-- FIN --".PHP_EOL;
 
 
 /*
