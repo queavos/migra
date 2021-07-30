@@ -1,6 +1,6 @@
 <?php
 ini_set('max_execution_time', -1);
-ini_set('memory_limit', -1);
+ini_set('memory_limit', '6000M');
 header('Content-type: text/plain; charset=utf-8');
 use Illuminate\Support\Facades\Route;
 use App\Models\sistemaAlumno;
@@ -278,7 +278,10 @@ Route::get('profes/lista', function () {
 /*  */
 Route::get('institucion/lista', function () { // INSTITUCION/LISTA
   //echo "<ol type='I'>";
-
+  $folder=date_format(Now(), 'Ymd-His');
+  mkdir($folder, 0777, true);
+  chdir ($folder);
+  echo "carpeta creada ".$folder.PHP_EOL;
   //print_r($datos);
   $i=100;
   $facuid=100;
@@ -579,7 +582,7 @@ foreach ($datos as $dato) {
                   $subEval_sql='INSERT INTO subject_evaluation (subeval_id,subeval_name, subeval_total,  subeval_date, subeval_exam, subeval_spprice, evaltype_id, carsubj_id, updated_at) VALUES('.$seval.','.isnulltxt($exam->Descripcion).', '.isnullnum($exam->total_puntos).', '.isnulldate($exam->fecha_examen).', '.$examen.', '.isnullnum($exam->Derecho_examen).', '.isnullnum($exam->clasificador).', '.$carsub_id.', '.isnulldate($exam->fecha_modif_web).');';
                   array_push($subjet_evaluation,$subEval_sql);
                   // reculeprar evaluaciones
-                  echo "leyendo calif de  ".isnulltxt($exam->Descripcion).PHP_EOL;
+              //    echo "leyendo calif de  ".isnulltxt($exam->Descripcion).PHP_EOL;
                    $calificALL = Calificacion::where("codigo_materia" ,$exam->codigo_materia)->get();
                    foreach ($calificALL as $calif)
                    {
@@ -591,7 +594,7 @@ foreach ($datos as $dato) {
                      $calif_sql="INSERT INTO eval_students(carsub_en_id, subeval_id, evstu_earned, evstu_final, evstu_aprov, evstu_enabled, evstu_paid) VALUES (".$calif->inscripcion.", ".$seval.", ".$calif->calificacion.", ".$isFinal.", ".$isAprov.", 0 , 0 );";
                      array_push($eval_students,$calif_sql);
                    }
-                   echo "fin leyendo calif de  ".isnulltxt($exam->Descripcion).PHP_EOL;
+                //   echo "fin leyendo calif de  ".isnulltxt($exam->Descripcion).PHP_EOL;
                   }
                 }
                 echo "fin leyendo examenes de  ".isnulltxt($matCur->Descripcion).PHP_EOL;
@@ -599,17 +602,74 @@ foreach ($datos as $dato) {
               echo "fin leyendo materias de ".isnulltxt($curso->descripcion).PHP_EOL;
           } // TERMINA  curso a carrera
           echo "leyendo cursos de ".isnulltxt($carre->descripcion).PHP_EOL;
+          echo "se escribira 16-semestres".$carre->carre_id.".sql con " .count($semesters)." lineas".PHP_EOL;
+          file_put_contents ('16-semestres'.$carre->carre_id.'.sql',implode(PHP_EOL,$semesters));
+          echo "se escribio 16-semestres".$carre->carre_id.".sql".PHP_EOL;
+          unset($semesters);
+          $semesters=[];
+          echo "se escribira 17-materias".$carre->carre_id.".sql con " .count($subjects)." lineas".PHP_EOL;
+          file_put_contents ('17-materias'.$carre->carre_id.'.sql',implode(PHP_EOL,$subjects));
+          echo "se escribio 17-materias".$carre->carre_id.".sql".PHP_EOL;
+          unset($subjects);
+          $subjects=[];
+          echo "se escribira 18-carras_materias".$carre->carre_id.".sql con " .count($carsubjects)." lineas".PHP_EOL;
+          file_put_contents ('18-carras_materias'.$carre->carre_id.'.sql',implode(PHP_EOL,$carsubjects));
+          echo "se escribio 18-carras_materias".$carre->carre_id.".sql".PHP_EOL;
+          unset($carsubjects);
+          $carsubjects=[];
+          echo "se escribira 19-inscripciones".$carre->carre_id.".sql con " .count($enrolleds)." lineas".PHP_EOL;
+          file_put_contents ('19-inscripciones'.$carre->carre_id.'.sql',implode(PHP_EOL,$enrolleds));
+          echo "se escribio 19-inscripciones".$carre->carre_id.".sql".PHP_EOL;
+          unset($enrolleds);
+          $enrolleds=[];
+          echo "se escribira 20-incrip_materia".$carre->carre_id.".sql con " .count($carsub_enrolled)." lineas".PHP_EOL;
+          file_put_contents ('20-incrip_materia'.$carre->carre_id.'.sql',implode(PHP_EOL,$carsub_enrolled));
+          echo "se escribio 20-incrip_materia".$carre->carre_id.".sql".PHP_EOL;
+          unset($carsub_enrolled);
+          $carsub_enrolled=[];
+          echo "se escribira 21-subjet_evaluation".$carre->carre_id.".sql con " .count($subjet_evaluation)." lineas".PHP_EOL;
+          file_put_contents ('21-subjet_evaluation'.$carre->carre_id.'.sql',implode(PHP_EOL,$subjet_evaluation));
+          echo "se escribio 21-subjet_evaluation".$carre->carre_id.".sql".PHP_EOL;
+          unset($subjet_evaluation);
+          $subjet_evaluation=[];
+          echo "se escribira 22-student_account".$carre->carre_id.".sql con " .count($student_account)." lineas".PHP_EOL;
+          file_put_contents ('22-student_account'.$carre->carre_id.'.sql',implode(PHP_EOL,$student_account));
+          echo "se escribio 22-student_account".$carre->carre_id.".sql".PHP_EOL;
+          unset($student_account);
+          $student_account=[];
+          echo "se escribira 23-eval_students".$carre->carre_id.".sql con " .count($eval_students)." lineas".PHP_EOL;
+          file_put_contents ('23-eval_students'.$carre->carre_id.'.sql',implode(PHP_EOL,$eval_students));
+          echo "se escribio 23-eval_students".$carre->carre_id.".sql".PHP_EOL;
+          unset($eval_students);
+          $eval_students=[];
         } // TERMINA CARRERA a careers
+        /// agregar escritura de archivos.
+        // echo "se escribira 13-facu_carreras".$carre->carre_id.".sql con " .count($facu_careers)." lineas".PHP_EOL;
+        // file_put_contents ('13-facu_carreras'.$carre->carre_id.'.sql',implode(PHP_EOL,$facu_careers));
+        // echo "se escribio 13-facu_carreras".$carre->carre_id.".sql".PHP_EOL;
+        // unset($facu_careers);
+
+        /// fin escritura de archivos.
       }
     }// camienza facultades a faculties
-    echo "fin leyendo facultades de ".isnulltxt($dato->descripcion).PHP_EOL;
+    // echo "fin leyendo facultades de ".isnulltxt($dato->descripcion).PHP_EOL;
+    // echo "se escribira 14-carreras_adm".$carre->carre_id.".sql con " .count($facucar_adm)." lineas".PHP_EOL;
+    // file_put_contents ('14-carreras_adm'.$carre->carre_id.'.sql',implode(PHP_EOL,$facucar_adm));
+    // echo "se escribio 14-carreras_adm".$carre->carre_id.".sql".PHP_EOL;
+    // unset($facucar_adm);
+    // echo "se escribira 15-tarifas".$carre->carre_id.".sql con " .count($tariffs)." lineas".PHP_EOL;
+    // file_put_contents ('15-tarifas'.$carre->carre_id.'.sql',implode(PHP_EOL,$tariffs));
+    // echo "se escribio 15-tarifas".$carre->carre_id.".sql".PHP_EOL;
+    // unset($tariffs);
+
+
   }
   echo "fin leyendo instituciones".PHP_EOL;
 } // camienza inituciones  a  units
-$folder=date_format(Now(), 'Ymd-His');
-mkdir($folder, 0777, true);
-chdir ($folder);
-echo "carpeta creada ".$folder.PHP_EOL;
+// $folder=date_format(Now(), 'Ymd-His');
+// mkdir($folder, 0777, true);
+// chdir ($folder);
+
 echo "se escribira 07-professors.sql con " .count($professors)." lineas".PHP_EOL;
 file_put_contents ('07-professors.sql',implode(PHP_EOL,$professors));
 echo "se escribio 07-professors.sql".PHP_EOL;
@@ -634,6 +694,7 @@ echo "se escribira 12-carreras.sql con " .count($careers)." lineas".PHP_EOL;
 file_put_contents ('12-carreras.sql',implode(PHP_EOL,$careers));
 echo "se escribio 12-carreras.sql".PHP_EOL;
 unset($careers);
+
 echo "se escribira 13-facu_carreras.sql con " .count($facu_careers)." lineas".PHP_EOL;
 file_put_contents ('13-facu_carreras.sql',implode(PHP_EOL,$facu_careers));
 echo "se escribio 13-facu_carreras.sql".PHP_EOL;
@@ -649,6 +710,7 @@ unset($tariffs);
 echo "se escribira 16-semestres.sql con " .count($semesters)." lineas".PHP_EOL;
 file_put_contents ('16-semestres.sql',implode(PHP_EOL,$semesters));
 echo "se escribio 16-semestres.sql".PHP_EOL;
+/*
 unset($semesters);
 echo "se escribira 17-materias.sql con " .count($subjects)." lineas".PHP_EOL;
 file_put_contents ('17-materias.sql',implode(PHP_EOL,$subjects));
@@ -678,48 +740,7 @@ echo "se escribira 23-eval_students.sql con " .count($eval_students)." lineas".P
 file_put_contents ('23-eval_students.sql',implode(PHP_EOL,$eval_students));
 echo "se escribio 23-eval_students.sql".PHP_EOL;
 unset($eval_students);
-echo "-- FIN --".PHP_EOL;
-
-
-/*
-foreach ($units as $u) {
-  //echo "<p>".$u."</p>" ;
-}
-foreach ($faculties as $u) {
-  //echo "<p>".$u."</p>" ;
-}
-foreach ($careers as $u) {
-  //  echo "<p>".$u."</p>" ;
-}
-foreach ($facu_careers as $u) {
-  //echo "<p>".$u."</p>" ;
-}
-foreach ($facucar_adm as $u) {
-  //echo "<p>".$u."</p>" ;
-}
-foreach ($tariffs as $u) {
-  //echo "<p>".$u."</p>" ;
-}
-
-
-foreach ($semesters as $u) {
-  //  echo "<p>".$u."</p>" ;
-}
-foreach ($subjects as $u) {
-  //  echo "<p>".$u."</p>" ;
-}
-foreach ($carsubjects as $u) {
-  //echo "<p>".$u."</p>" ;
-}
-foreach ($enrolleds as $u) {
-  //echo "<p>".$u."</p>" ;
-}
-//echo "<ol>";
-//$r=0;
-foreach ($carsub_enrolled as $u) {
-  echo "<p>".$u."</p>" ;
-}
-//echo "<ol>";
 */
+echo "-- FIN --".PHP_EOL;
 
 })->name('insti_lista'); // INSTITUCION/LISTA
