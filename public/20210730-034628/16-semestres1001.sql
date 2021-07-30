@@ -1,1 +1,0 @@
-INSERT INTO semesters(sems_id, sems_name,  career_id,  sems_year) VALUES (  1,'Administracion General',1002,2010);

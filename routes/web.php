@@ -601,47 +601,63 @@ foreach ($datos as $dato) {
               }  //TERMINA materias a subjects
               echo "fin leyendo materias de ".isnulltxt($curso->descripcion).PHP_EOL;
           } // TERMINA  curso a carrera
+          if (count($semesters)>=1000){
           echo "leyendo cursos de ".isnulltxt($carre->descripcion).PHP_EOL;
           echo "se escribira 16-semestres".$carre->carre_id.".sql con " .count($semesters)." lineas".PHP_EOL;
           file_put_contents ('16-semestres'.$carre->carre_id.'.sql',implode(PHP_EOL,$semesters));
           echo "se escribio 16-semestres".$carre->carre_id.".sql".PHP_EOL;
           unset($semesters);
           $semesters=[];
+          }
+          if (count($subjects)>=1000){
           echo "se escribira 17-materias".$carre->carre_id.".sql con " .count($subjects)." lineas".PHP_EOL;
           file_put_contents ('17-materias'.$carre->carre_id.'.sql',implode(PHP_EOL,$subjects));
           echo "se escribio 17-materias".$carre->carre_id.".sql".PHP_EOL;
           unset($subjects);
           $subjects=[];
+        }
+        if (count($carsubjects)>=1000){
           echo "se escribira 18-carras_materias".$carre->carre_id.".sql con " .count($carsubjects)." lineas".PHP_EOL;
           file_put_contents ('18-carras_materias'.$carre->carre_id.'.sql',implode(PHP_EOL,$carsubjects));
           echo "se escribio 18-carras_materias".$carre->carre_id.".sql".PHP_EOL;
           unset($carsubjects);
           $carsubjects=[];
+        }
+        if (count($enrolleds)>=1000){
           echo "se escribira 19-inscripciones".$carre->carre_id.".sql con " .count($enrolleds)." lineas".PHP_EOL;
           file_put_contents ('19-inscripciones'.$carre->carre_id.'.sql',implode(PHP_EOL,$enrolleds));
           echo "se escribio 19-inscripciones".$carre->carre_id.".sql".PHP_EOL;
           unset($enrolleds);
           $enrolleds=[];
+        }
+        if (count($carsub_enrolled)>=1000){
           echo "se escribira 20-incrip_materia".$carre->carre_id.".sql con " .count($carsub_enrolled)." lineas".PHP_EOL;
           file_put_contents ('20-incrip_materia'.$carre->carre_id.'.sql',implode(PHP_EOL,$carsub_enrolled));
           echo "se escribio 20-incrip_materia".$carre->carre_id.".sql".PHP_EOL;
           unset($carsub_enrolled);
           $carsub_enrolled=[];
+        }
+        if (count($subjet_evaluation)>=1000){
           echo "se escribira 21-subjet_evaluation".$carre->carre_id.".sql con " .count($subjet_evaluation)." lineas".PHP_EOL;
           file_put_contents ('21-subjet_evaluation'.$carre->carre_id.'.sql',implode(PHP_EOL,$subjet_evaluation));
           echo "se escribio 21-subjet_evaluation".$carre->carre_id.".sql".PHP_EOL;
           unset($subjet_evaluation);
           $subjet_evaluation=[];
+        }
+        if (count($student_account)>=1000){
           echo "se escribira 22-student_account".$carre->carre_id.".sql con " .count($student_account)." lineas".PHP_EOL;
           file_put_contents ('22-student_account'.$carre->carre_id.'.sql',implode(PHP_EOL,$student_account));
           echo "se escribio 22-student_account".$carre->carre_id.".sql".PHP_EOL;
           unset($student_account);
           $student_account=[];
+        }
+        if (count($eval_students)>=1000){
           echo "se escribira 23-eval_students".$carre->carre_id.".sql con " .count($eval_students)." lineas".PHP_EOL;
           file_put_contents ('23-eval_students'.$carre->carre_id.'.sql',implode(PHP_EOL,$eval_students));
           echo "se escribio 23-eval_students".$carre->carre_id.".sql".PHP_EOL;
           unset($eval_students);
           $eval_students=[];
+        }
         } // TERMINA CARRERA a careers
         /// agregar escritura de archivos.
         // echo "se escribira 13-facu_carreras".$carre->carre_id.".sql con " .count($facu_careers)." lineas".PHP_EOL;
@@ -710,7 +726,6 @@ unset($tariffs);
 echo "se escribira 16-semestres.sql con " .count($semesters)." lineas".PHP_EOL;
 file_put_contents ('16-semestres.sql',implode(PHP_EOL,$semesters));
 echo "se escribio 16-semestres.sql".PHP_EOL;
-/*
 unset($semesters);
 echo "se escribira 17-materias.sql con " .count($subjects)." lineas".PHP_EOL;
 file_put_contents ('17-materias.sql',implode(PHP_EOL,$subjects));
@@ -740,7 +755,7 @@ echo "se escribira 23-eval_students.sql con " .count($eval_students)." lineas".P
 file_put_contents ('23-eval_students.sql',implode(PHP_EOL,$eval_students));
 echo "se escribio 23-eval_students.sql".PHP_EOL;
 unset($eval_students);
-*/
+
 echo "-- FIN --".PHP_EOL;
 
 })->name('insti_lista'); // INSTITUCION/LISTA
